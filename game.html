@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HACKEADO! — Sobreviva à internet brasileira</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a0010}
+#hk-root{font-family:'Inter',sans-serif;background:#0a0010;color:#fff;width:100vw;height:100vh;position:relative;overflow:hidden;user-select:none}
+.hk-screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;transition:opacity .3s}
+.hk-screen.hidden{opacity:0;pointer-events:none}
+#hk-root .neon-title{font-family:'Press Start 2P',monospace;font-size:clamp(28px,6vw,64px);color:#ff2d78;text-shadow:0 0 10px #ff2d78,0 0 30px #ff2d78,0 0 60px #b300ff;animation:glitch 2s infinite;letter-spacing:2px}
+@keyframes glitch{0%,100%{text-shadow:0 0 10px #ff2d78,0 0 30px #ff2d78}50%{text-shadow:-2px 0 #00f0ff,2px 0 #ff2d78,0 0 30px #b300ff}}
+.hk-btn{background:transparent;border:2px solid #ff2d78;color:#ff2d78;font-family:'Press Start 2P',monospace;font-size:12px;padding:14px 28px;cursor:pointer;margin:7px;border-radius:4px;transition:all .2s;text-transform:uppercase;min-width:220px}
+.hk-btn:hover{background:#ff2d78;color:#000;box-shadow:0 0 20px #ff2d78}
+.hk-btn.blue{border-color:#00f0ff;color:#00f0ff}.hk-btn.blue:hover{background:#00f0ff;color:#000}
+.hk-btn.green{border-color:#00ff88;color:#00ff88}.hk-btn.green:hover{background:#00ff88;color:#000}
+.hk-subtitle{color:#b0b0ff;font-size:15px;margin:12px 0 28px;text-align:center}
+.stars{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle 3s infinite}
+@keyframes twinkle{0%,100%{opacity:.3}50%{opacity:1}}
+#hk-bars{width:100%;max-width:680px;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;flex-shrink:0}
+.bar-wrap{background:#1a0030;border:1px solid #3a0060;border-radius:8px;padding:8px 12px}
+.bar-label{font-size:11px;color:#b0b0ff;margin-bottom:5px;display:flex;justify-content:space-between}
+.bar-track{background:#0a0020;border-radius:4px;height:12px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .5s}
+.bar-priv .bar-fill{background:linear-gradient(90deg,#00f0ff,#b300ff)}
+.bar-seg .bar-fill{background:linear-gradient(90deg,#ff2d78,#ff8800)}
+.bar-din .bar-fill{background:linear-gradient(90deg,#00ff88,#00f0ff)}
+.bar-rep .bar-fill{background:linear-gradient(90deg,#b300ff,#ff2d78)}
+#hk-event-area{width:100%;max-width:680px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.event-card{background:#110020;border:2px solid #b300ff;border-radius:14px;padding:22px;width:100%;animation:slidein .3s ease;position:relative;overflow:hidden}
+@keyframes slidein{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.event-tag{font-size:11px;background:#b300ff;color:#fff;padding:4px 10px;border-radius:20px;display:inline-block;margin-bottom:10px;font-weight:700;letter-spacing:1px}
+.event-tag.danger{background:#ff2d78}.event-tag.warn{background:#ff8800}.event-tag.info{background:#0088ff}
+.event-title{font-size:18px;font-weight:900;color:#fff;margin-bottom:10px;line-height:1.3}
+.event-body{font-size:14px;color:#c0b0d0;margin-bottom:16px;line-height:1.6}
+.event-choices{display:flex;flex-wrap:wrap;gap:10px}
+.choice-btn{background:transparent;border:1px solid #555;color:#ddd;font-size:13px;padding:11px 18px;border-radius:8px;cursor:pointer;transition:all .15s;flex:1;min-width:140px;line-height:1.4}
+.choice-btn:hover{border-color:#ff2d78;color:#ff2d78;background:rgba(255,45,120,.1)}
+.choice-btn.safe:hover{border-color:#00ff88;color:#00ff88;background:rgba(0,255,136,.1)}
+#hk-toast-area{position:fixed;top:16px;right:16px;display:flex;flex-direction:column;gap:8px;z-index:100;max-width:280px}
+.toast{background:#1a0030;border-left:3px solid #ff2d78;padding:10px 14px;border-radius:4px;font-size:12px;color:#fff;animation:toastin .3s ease;line-height:1.5}
+.toast.good{border-left-color:#00ff88}
+@keyframes toastin{from{transform:translateX(50px);opacity:0}to{transform:translateX(0);opacity:1}}
+#hk-score-bar{width:100%;max-width:680px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-shrink:0}
+.score-num{font-family:'Press Start 2P',monospace;font-size:12px;color:#b300ff}
+.round-num{font-size:11px;color:#888;font-family:'Press Start 2P',monospace}
+.consequence-overlay{position:fixed;inset:0;background:rgba(255,0,0,.15);display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:50;animation:shake .4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.consequence-msg{background:#1a0000;border:2px solid #ff2d78;border-radius:14px;padding:24px 32px;text-align:center;max-width:420px}
+.consequence-msg h3{color:#ff2d78;font-size:16px;margin-bottom:10px}
+.consequence-msg p{font-size:13px;color:#ffaaaa;line-height:1.6}
+.gameover-content{text-align:center;max-width:580px;z-index:1;width:100%}
+.gameover-content h2{font-family:'Press Start 2P',monospace;font-size:24px;color:#ff2d78;margin-bottom:14px;text-shadow:0 0 20px #ff2d78}
+.headline{background:#1a0020;border:1px solid #ff2d78;border-radius:8px;padding:10px 16px;margin:7px 0;font-size:13px;color:#ffb0b0;text-align:left;line-height:1.5}
+.headline::before{content:'📰 '}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;width:100%}
+.stat-box{background:#110020;border:1px solid #3a0060;border-radius:8px;padding:12px;text-align:center}
+.stat-box .sv{font-family:'Press Start 2P',monospace;font-size:16px;color:#ff2d78;display:block;margin-bottom:5px}
+.stat-box .sl{font-size:11px;color:#888}
+.char-select{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:14px 0}
+.char-card{background:#110020;border:2px solid #3a0060;border-radius:10px;padding:14px;cursor:pointer;transition:all .2s;text-align:center;min-width:90px}
+.char-card:hover,.char-card.selected{border-color:#b300ff;background:#1e0035;box-shadow:0 0 18px rgba(179,0,255,.3)}
+.char-card .char-icon{font-size:30px;display:block;margin-bottom:6px}
+.char-card .char-name{font-size:10px;color:#b0b0ff;font-weight:700}
+#hk-timer-bar{width:100%;max-width:680px;height:7px;background:#1a0030;border-radius:4px;margin-bottom:10px;overflow:hidden;flex-shrink:0}
+#hk-timer-fill{height:100%;background:linear-gradient(90deg,#00ff88,#ff8800,#ff2d78);border-radius:4px;transition:width .1s linear}
+.notif-burst{position:fixed;pointer-events:none;z-index:200;font-size:24px;animation:burst 1s ease forwards}
+@keyframes burst{0%{transform:scale(0) rotate(-20deg);opacity:1}100%{transform:scale(2.5) rotate(20deg) translateY(-60px);opacity:0}}
+.edu-tip{background:#001a30;border-left:3px solid #00f0ff;padding:10px 14px;border-radius:0 6px 6px 0;font-size:12px;color:#80d4ff;margin-top:12px;line-height:1.6}
+.edu-tip::before{content:'💡 Dica: ';font-weight:700}
+#scr-game{justify-content:flex-start;padding:16px 20px}
+</style>
+</head>
+<body>
+<div id="hk-root">
+<div class="stars" id="hk-stars"></div>
+<div id="hk-toast-area"></div>
+
+<div class="hk-screen" id="scr-intro">
+  <div class="neon-title">HACKEADO!</div>
+  <p class="hk-subtitle">Sobreviva à internet brasileira. 🇧🇷</p>
+  <button class="hk-btn" onclick="showScreen('scr-char')">▶ JOGAR</button>
+  <button class="hk-btn blue" onclick="showScreen('scr-tutorial')">📖 Tutorial</button>
+  <button class="hk-btn" style="border-color:#555;color:#999;font-size:9px;min-width:160px" onclick="showScreen('scr-credits')">Créditos</button>
+</div>
+
+<div class="hk-screen hidden" id="scr-char">
+  <h2 style="font-family:'Press Start 2P',monospace;font-size:14px;color:#b300ff;margin-bottom:10px">CRIE SEU INFLUENCER</h2>
+  <p class="hk-subtitle" style="font-size:13px">Escolha seu nicho:</p>
+  <div class="char-select">
+    <div class="char-card" onclick="selectChar(event,'🎮')"><span class="char-icon">🎮</span><span class="char-name">Gamer</span></div>
+    <div class="char-card" onclick="selectChar(event,'🌸')"><span class="char-icon">🌸</span><span class="char-name">Lifestyle</span></div>
+    <div class="char-card" onclick="selectChar(event,'😂')"><span class="char-icon">😂</span><span class="char-name">Humor</span></div>
+    <div class="char-card" onclick="selectChar(event,'👄')"><span class="char-icon">👄</span><span class="char-name">Fofoca</span></div>
+    <div class="char-card" onclick="selectChar(event,'💼')"><span class="char-icon">💼</span><span class="char-name">Coach</span></div>
+  </div>
+  <div style="margin:8px 0">
+    <label style="font-size:12px;color:#888">Seu @:</label><br>
+    <input id="nick-input" type="text" maxlength="16" placeholder="seunick" style="background:#110020;border:1px solid #b300ff;color:#fff;padding:10px 14px;border-radius:6px;font-size:15px;margin-top:8px;width:220px;outline:none" value="influencer123">
+  </div>
+  <button class="hk-btn green" style="margin-top:12px" onclick="startGame()">COMEÇAR 🚀</button>
+  <button class="hk-btn" style="border-color:#555;color:#666;font-size:9px;min-width:160px;margin-top:4px" onclick="showScreen('scr-intro')">← Voltar</button>
+</div>
+
+<div class="hk-screen hidden" id="scr-tutorial">
+  <div style="max-width:580px;z-index:1">
+    <h2 style="font-family:'Press Start 2P',monospace;font-size:14px;color:#00f0ff;margin-bottom:18px">COMO JOGAR</h2>
+    <div style="background:#110020;border:1px solid #00f0ff;border-radius:12px;padding:20px;font-size:13px;color:#c0d0ff;line-height:2.2">
+      <p>🎯 <b>Objetivo:</b> Sobreviva à internet sem ser hackeado por 20 rounds</p>
+      <p>📊 <b>Status:</b> Mantenha Privacidade, Seguidores, Dinheiro e Reputação</p>
+      <p>⚡ <b>Eventos:</b> Decida rápido — o timer está correndo!</p>
+      <p>✅ <b>Escolha certo:</b> ganha pontos e protege seus dados</p>
+      <p>❌ <b>Escolha errado:</b> consequências cômicas e constrangedoras</p>
+      <p>💀 <b>Game Over:</b> qualquer barra chegando a zero = hackeado!</p>
+    </div>
+    <button class="hk-btn green" style="margin-top:18px" onclick="showScreen('scr-intro')">ENTENDI!</button>
+  </div>
+</div>
+
+<div class="hk-screen hidden" id="scr-credits">
+  <div style="text-align:center;z-index:1">
+    <h2 style="font-family:'Press Start 2P',monospace;font-size:13px;color:#b300ff;margin-bottom:18px">CRÉDITOS</h2>
+    <p style="color:#c0b0ff;font-size:14px;line-height:2.2">🎮 HACKEADO!<br>Um jogo sobre segurança digital<br>feito com amor e paranoia<br><br>Ensina: phishing, senhas fortes,<br>2FA, privacidade e bom senso<br><br>🇧🇷 Feito para a internet brasileira</p>
+    <button class="hk-btn" style="margin-top:18px" onclick="showScreen('scr-intro')">← Voltar</button>
+  </div>
+</div>
+
+<div class="hk-screen hidden" id="scr-game">
+  <div id="hk-score-bar">
+    <span class="score-num" id="hk-score">SCORE: 0</span>
+    <span style="font-size:12px;color:#ff2d78" id="hk-char-name">@influencer123 🎮</span>
+    <span class="round-num" id="hk-round">Round 1/20</span>
+  </div>
+  <div id="hk-timer-bar"><div id="hk-timer-fill" style="width:100%"></div></div>
+  <div id="hk-bars">
+    <div class="bar-wrap bar-priv">
+      <div class="bar-label"><span>🔒 Privacidade</span><span id="val-priv">100</span></div>
+      <div class="bar-track"><div class="bar-fill" id="bar-priv" style="width:100%"></div></div>
+    </div>
+    <div class="bar-wrap bar-seg">
+      <div class="bar-label"><span>👥 Seguidores</span><span id="val-seg">100</span></div>
+      <div class="bar-track"><div class="bar-fill" id="bar-seg" style="width:100%"></div></div>
+    </div>
+    <div class="bar-wrap bar-din">
+      <div class="bar-label"><span>💰 Dinheiro</span><span id="val-din">100</span></div>
+      <div class="bar-track"><div class="bar-fill" id="bar-din" style="width:100%"></div></div>
+    </div>
+    <div class="bar-wrap bar-rep">
+      <div class="bar-label"><span>⭐ Reputação</span><span id="val-rep">100</span></div>
+      <div class="bar-track"><div class="bar-fill" id="bar-rep" style="width:100%"></div></div>
+    </div>
+  </div>
+  <div id="hk-event-area"></div>
+</div>
+
+<div class="hk-screen hidden" id="scr-gameover">
+  <div class="gameover-content">
+    <div style="font-size:48px;margin-bottom:8px">😭</div>
+    <h2>HACKEADO!</h2>
+    <p style="color:#ff8888;font-size:13px;margin-bottom:14px" id="go-reason">Sua conta foi comprometida.</p>
+    <div class="stat-grid">
+      <div class="stat-box"><span class="sv" id="go-score">0</span><span class="sl">Pontuação</span></div>
+      <div class="stat-box"><span class="sv" id="go-rounds">0</span><span class="sl">Rounds</span></div>
+      <div class="stat-box"><span class="sv" id="go-seg">0</span><span class="sl">Seguidores restantes</span></div>
+      <div class="stat-box"><span class="sv" id="go-exposed">🔓</span><span class="sl">Exposição</span></div>
+    </div>
+    <div id="go-headlines"></div>
+    <button class="hk-btn green" style="margin-top:16px" onclick="startGame()">🔄 JOGAR NOVAMENTE</button>
+    <button class="hk-btn" style="border-color:#555;color:#666;font-size:9px;min-width:160px;margin-top:4px" onclick="showScreen('scr-intro')">← Menu</button>
+  </div>
+</div>
+
+<div class="hk-screen hidden" id="scr-win">
+  <div class="gameover-content">
+    <div style="font-size:48px;margin-bottom:8px">🏆</div>
+    <h2 style="color:#00ff88;text-shadow:0 0 20px #00ff88">SOBREVIVEU!</h2>
+    <p style="color:#88ff88;font-size:13px;margin-bottom:14px">Você protegeu seus dados na internet! Por enquanto...</p>
+    <div class="stat-grid">
+      <div class="stat-box"><span class="sv" id="win-score" style="color:#00ff88">0</span><span class="sl">Pontuação</span></div>
+      <div class="stat-box"><span class="sv" id="win-priv" style="color:#00f0ff">0</span><span class="sl">Privacidade</span></div>
+    </div>
+    <button class="hk-btn green" style="margin-top:16px" onclick="startGame()">🔄 JOGAR NOVAMENTE</button>
+    <button class="hk-btn" style="border-color:#555;color:#666;font-size:9px;min-width:160px;margin-top:4px" onclick="showScreen('scr-intro')">← Menu</button>
+  </div>
+</div>
+</div>
+
+<script>
+const EVENTS=[{id:'phishing_email',tag:'PHISHING',tagType:'danger',title:'📧 E-mail urgente chegou!',body:'PARABÉNS!!! Você foi selecionado para ganhar um iPhone 15 Pro GRÁTIS! Clique agora para resgatar seu prêmio antes que expire!!! ⏰',choices:[{txt:'🖱️ Clicar no link',safe:false,effects:{priv:-30,din:-25},msg:'🚨 Você caiu no phishing! Seus dados de cartão foram roubados. R$ 2.847 em compras no Shopee.',headlines:['Influencer clica em "iPhone grátis" e perde conta bancária','Número do cartão vendido por R$ 3 em grupo do Telegram']},{txt:'🗑️ Ignorar e deletar',safe:true,effects:{rep:+5},msg:'✅ Boa! E-mails de prêmios aleatórios são sempre golpe.',tip:'Desconfie de prêmios que você não se inscreveu. Empresas legítimas não pedem dados por e-mail.'}]},{id:'wifi_falso',tag:'WI-FI',tagType:'warn',title:'📶 Wi-Fi grátis detectado!',body:'"AeroportoFreeWifi_VIP" encontrado. Conexão rápida, sem senha! Você está no aeroporto e a internet está acabando...',choices:[{txt:'📡 Conectar agora',safe:false,effects:{priv:-35,din:-20},msg:'💀 Era um honeypot! Seus logins foram capturados. Alguém mudou sua bio para "compre bitcoin".',headlines:['Influencer perde acesso a 4 redes no aeroporto','Hacker vende segredos da live por R$ 50']},{txt:'📱 Usar meu 4G',safe:true,effects:{din:-2,rep:+3},msg:'✅ Sábio! Wi-Fi público sem senha é armadilha clássica.',tip:'Em Wi-Fi público, nunca acesse bancos ou redes sociais.'}]},{id:'senha_banco',tag:'URGENTE',tagType:'danger',title:'🏦 Seu banco enviou mensagem!',body:'"ATENÇÃO: Sua conta será BLOQUEADA em 2 horas! Confirme sua senha de 6 dígitos AGORA para evitar o bloqueio."',choices:[{txt:'🔑 Enviar minha senha',safe:false,effects:{din:-50,priv:-40},msg:'💸 Sua conta foi esvaziada em 3 minutos. R$ 8.420 via Pix para contas laranjas.',headlines:['Influencer perde poupança por SMS falso','Golpistas compram setup gamer com dinheiro roubado']},{txt:'📞 Ligar para o banco',safe:true,effects:{rep:+8},msg:'✅ Correto! Bancos NUNCA pedem senha por SMS.',tip:'Ligue sempre para o número no verso do cartão. Nunca no número que te enviaram.'}]},{id:'app_permissoes',tag:'APP',tagType:'warn',title:'📱 App de filtro IA viral!',body:'"FaceGlow Pro" quer acesso a:\n📸 Câmera  📞 Contatos  📍 Localização  🎙️ Microfone\n\nJá tem 50M de downloads! Todo mundo está usando!',choices:[{txt:'✅ Aceitar tudo',safe:false,effects:{priv:-45},msg:'🕵️ O app vendeu sua localização e ficou ouvindo suas conversas. Sua live vazou de noite.',headlines:['App de filtro transmite localização ao vivo','Contatos do influencer vendidos para golpistas']},{txt:'❌ Recusar e desinstalar',safe:true,effects:{rep:+5},msg:'✅ Filtro de foto não precisa de microfone! Red flag enorme.',tip:'Revise as permissões de TODOS os seus apps. Câmera e microfone são as mais perigosas.'}]},{id:'pix_golpe',tag:'PIX',tagType:'danger',title:'💰 Pedido de Pix urgente!',body:'Sua amiga Karla mandou mensagem: "Socorro! Meu celular quebrou, preciso de R$ 350 urgente pro hospital, te devolvo amanhã juro!"',choices:[{txt:'💸 Mandar Pix agora',safe:false,effects:{din:-35},msg:'😭 Era um golpista com a conta hackeada da Karla. Você perdeu R$ 350.',headlines:['Influencer manda Pix para golpista se passando por amiga','Golpe do "celular quebrado" faz 40 mil vítimas']},{txt:'📞 Ligar para a Karla',safe:true,effects:{rep:+6},msg:'✅ Sempre confirme por ligação antes de mandar dinheiro!',tip:'Sempre ligue para confirmar antes de qualquer Pix para número desconhecido.'}]},{id:'qr_code',tag:'QR CODE',tagType:'danger',title:'📷 QR Code colado no metrô!',body:'Cartaz: "OFERTA EXCLUSIVA! Escaneie o QR Code para 50% OFF! Só hoje!" O código está colado em cima do original da catraca.',choices:[{txt:'📷 Escanear o código',safe:false,effects:{din:-30,priv:-20},msg:'💀 Site falso instalou app malicioso. Seu Pix foi redirecionado por 6 dias.',headlines:['QR Codes falsos no metrô desviam Pix','Influencer perde R$ 1.240 em "promoção exclusiva"']},{txt:'🚫 Ignorar',safe:true,effects:{rep:+4},msg:'✅ QR Codes colados em cima de outros = golpe clássico.',tip:'Verifique se o QR Code não está colado sobre outro antes de escanear.'}]},{id:'senha_fraca',tag:'SENHA',tagType:'warn',title:'🔐 Cadastro em plataforma nova!',body:'Nova plataforma de streaming. Você pensa em usar "senha123" que usa em tudo...',choices:[{txt:'⌨️ Usar "senha123"',safe:false,effects:{priv:-40,rep:-15},msg:'😱 A plataforma vazou. Como sua senha era igual em tudo, perdeu acesso ao email, Instagram e banco de uma vez.',headlines:['Vazamento expõe 2M de senhas "123456"','Top 10 senhas roubadas: influencer usava todas']},{txt:'🔑 Criar senha forte única',safe:true,effects:{priv:+8,rep:+5},msg:'✅ Senha forte e única por site = camada essencial de segurança!',tip:'Use um gerenciador de senhas. Cada site merece uma senha diferente.'}]},{id:'dois_fatores',tag:'2FA',tagType:'info',title:'🛡️ Ativar verificação em 2 etapas?',body:'Seu Instagram sugeriu ativar autenticação em dois fatores. Demora 2 minutos e você terá que digitar um código extra ao logar.',choices:[{txt:'⏩ Pular, é chato',safe:false,effects:{priv:-15,rep:-10},msg:'🔓 Sua conta foi invadida de madrugada. Publicaram conteúdo constrangedor e seguiram 400 contas de cassino.',headlines:['Conta sem 2FA vira perfil de cassino','Influencer chora em live após conta hackeada']},{txt:'✅ Ativar agora',safe:true,effects:{priv:+15,rep:+8},msg:'✅ Excelente! 2FA bloqueia 99% dos ataques de invasão.',tip:'Autenticação em dois fatores (2FA) é a melhor proteção para suas contas. Ative em todas!'}]},{id:'login_falso',tag:'FAKE LOGIN',tagType:'danger',title:'🔓 Página de login estranha...',body:'Link recebido: "Veja quem visualizou seu perfil no TikTok!"\nURL: tiktok-visualizacoes-secretas.com.br/login',choices:[{txt:'📝 Fazer login',safe:false,effects:{priv:-50,seg:-30},msg:'💀 Site falso! Golpistas têm seu usuário e senha. Em 10 min acessaram todas suas redes.',headlines:['Influencer entrega senha voluntariamente a golpista','Hacker agradece "pela cooperação" nas stories']},{txt:'🔍 Verificar a URL',safe:true,effects:{rep:+6},msg:'✅ Sempre verifique a URL! TikTok = tiktok.com, nada mais.',tip:'Sites falsos imitam o visual do original. Sempre cheque o endereço na barra do navegador.'}]},{id:'update_falso',tag:'MALWARE',tagType:'danger',title:'💻 Atualização necessária!',body:'Pop-up: "ATENÇÃO: Seu Flash Player está desatualizado! Instale agora para continuar assistindo! [INSTALAR AGORA]"',choices:[{txt:'⬇️ Instalar agora',safe:false,effects:{priv:-40,din:-20},msg:'🦠 Ransomware! Todos os arquivos foram criptografados. Pediram R$ 5.000 em Bitcoin.',headlines:['Ransomware sequestra arquivos do influencer','Contratos de publi perdidos por update falso']},{txt:'❌ Fechar o pop-up',safe:true,effects:{rep:+5},msg:'✅ Flash Player morreu em 2020. Pop-ups de "atualização urgente" são sempre vírus.',tip:'Atualize programas SOMENTE pelo site oficial ou loja de apps. Nunca por pop-ups.'}]},{id:'engenharia_social',tag:'SOCIAL ENG.',tagType:'danger',title:'👔 Proposta de parceria!',body:'"Olá! Sou do time do Instagram. Seu perfil foi selecionado para o selo azul! Precisamos dos seus dados de acesso para concluir."',choices:[{txt:'📤 Enviar meus dados',safe:false,effects:{priv:-45,seg:-40},msg:'🚨 GOLPE! Agora sua conta vende cursos de emagrecimento.',headlines:['Influencer perde conta tentando conseguir selo azul','Engenharia social engana criadores de conteúdo']},{txt:'🚫 Bloquear e denunciar',safe:true,effects:{rep:+8},msg:'✅ Perfeito! Empresas de redes sociais NUNCA pedem sua senha.',tip:'Engenharia social usa confiança para extrair informações. Nenhuma empresa legítima pede sua senha.'}]},{id:'vishing',tag:'VISHING',tagType:'danger',title:'📞 Ligação do suporte técnico!',body:'"Olá, sou da Microsoft. Detectamos um vírus grave no seu computador! Precisamos de acesso remoto AGORA!"',choices:[{txt:'🖥️ Dar acesso remoto',safe:false,effects:{din:-40,priv:-50},msg:'💀 GOLPE! O "técnico" instalou keylogger e roubou tudo em 15 minutos.',headlines:['Falso suporte da Microsoft esvazia conta','Golpistas acessam computador remotamente e roubam tudo']},{txt:'📵 Desligar imediatamente',safe:true,effects:{rep:+7},msg:'✅ Microsoft, Google e Apple NUNCA ligam para você espontaneamente.',tip:'Vishing é golpe por ligação. Nenhuma empresa de tech liga pedindo acesso remoto.'}]},{id:'oversharing',tag:'OVERSHARING',tagType:'warn',title:'📍 Postar foto da sua casa!',body:'Foto incrível em casa. Mas mostra sua janela com a rua visível, número do apartamento e bairro reconhecível ao fundo.',choices:[{txt:'📸 Postar agora!',safe:false,effects:{priv:-25,rep:-10},msg:'🏠 Três stalkers identificaram sua localização em 20 minutos.',headlines:['Influencer revela endereço sem querer','Stalker aparece na porta após post inocente']},{txt:'✏️ Borrar o fundo',safe:true,effects:{priv:+5,rep:+4},msg:'✅ Nunca mostre referências geográficas identificáveis em fotos.',tip:'Fotos podem conter GPS nos metadados. Desative localização nas configurações da câmera.'}]},{id:'cookies',tag:'PRIVACIDADE',tagType:'info',title:'🍪 Aceitar todos os cookies?',body:'Site pede consentimento. "Aceitar todos" (1 clique) ou "Gerenciar preferências" (2 minutos).',choices:[{txt:'✅ Aceitar todos',safe:false,effects:{priv:-15},msg:'📊 Você é rastreado em 847 sites. Seus hábitos foram vendidos para 23 empresas.',headlines:['Dados do influencer valem R$ 2 por mês para anunciantes','Empresa sabe que você pesquisou esse produto às 3h']},{txt:'⚙️ Gerenciar preferências',safe:true,effects:{priv:+10},msg:'✅ Recusar cookies de rastreamento protege sua privacidade.',tip:'Aceitar todos os cookies permite rastreamento em toda a web.'}]}];
+
+let state={},timerInterval=null,currentCharIcon='🎮',currentNick='influencer123';
+
+function showScreen(id){
+  document.querySelectorAll('.hk-screen').forEach(s=>s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function selectChar(e,icon){
+  currentCharIcon=icon;
+  document.querySelectorAll('.char-card').forEach(c=>c.classList.remove('selected'));
+  e.currentTarget.classList.add('selected');
+}
+
+function startGame(){
+  clearInterval(timerInterval);
+  currentNick=document.getElementById('nick-input')?.value||'influencer123';
+  state={priv:100,seg:100,din:100,rep:100,score:0,round:0,maxRound:20,usedEvents:[],gameOver:false};
+  document.getElementById('hk-char-name').textContent='@'+currentNick+' '+currentCharIcon;
+  showScreen('scr-game');
+  nextEvent();
+}
+
+function nextEvent(){
+  clearInterval(timerInterval);
+  state.round++;
+  if(state.round>state.maxRound){showWin();return;}
+  document.getElementById('hk-round').textContent='Round '+state.round+'/'+state.maxRound;
+  let avail=EVENTS.filter(e=>!state.usedEvents.includes(e.id));
+  if(!avail.length){state.usedEvents=[];avail=EVENTS;}
+  const ev=avail[Math.floor(Math.random()*avail.length)];
+  state.usedEvents.push(ev.id);
+  renderEvent(ev);
+  startTimer(ev);
+}
+
+function startTimer(ev){
+  let pct=100;
+  timerInterval=setInterval(()=>{
+    pct-=1.2;
+    const el=document.getElementById('hk-timer-fill');
+    if(el)el.style.width=Math.max(0,pct)+'%';
+    if(pct<=0){clearInterval(timerInterval);applyChoice(ev.choices.find(c=>!c.safe)||ev.choices[0],true);}
+  },80);
+}
+
+function renderEvent(ev){
+  const area=document.getElementById('hk-event-area');
+  const bodyHtml=ev.body.replace(/\n/g,'<br>');
+  const choicesHtml=ev.choices.map((c,i)=>`<button class="choice-btn${c.safe?' safe':''}" onclick="handleChoice(${i},'${ev.id}')">${c.txt}</button>`).join('');
+  const tipHtml=ev.tip?`<div class="edu-tip">${ev.tip}</div>`:'';
+  area.innerHTML=`<div class="event-card"><span class="event-tag ${ev.tagType}">${ev.tag}</span><div class="event-title">${ev.title}</div><div class="event-body">${bodyHtml}</div><div class="event-choices">${choicesHtml}</div>${tipHtml}</div>`;
+}
+
+function handleChoice(idx,evId){
+  clearInterval(timerInterval);
+  const ev=EVENTS.find(e=>e.id===evId);
+  if(ev)applyChoice(ev.choices[idx],false);
+}
+
+function applyChoice(choice,timedOut){
+  if(state.gameOver)return;
+  Object.entries(choice.effects||{}).forEach(([k,v])=>{state[k]=Math.max(0,Math.min(100,state[k]+v));});
+  state.score+=choice.safe&&!timedOut?50+state.round*2:5;
+  updateBars();
+  const msg=timedOut?'⏰ Tempo esgotado! Você ficou paralisado...':(choice.msg||'');
+  if(!choice.safe||timedOut){
+    showConsequence(msg,choice.headlines);
+  }else{
+    showToast(msg,'good');
+    if(choice.tip)showToast(choice.tip,'');
+    setTimeout(()=>checkGameOver()||nextEvent(),1800);
+  }
+}
+
+function showConsequence(msg,headlines){
+  const overlay=document.createElement('div');
+  overlay.className='consequence-overlay';
+  const headHtml=(headlines||[]).map(h=>`<p style="font-size:12px;color:#ff8888;margin:3px 0">📰 ${h}</p>`).join('');
+  overlay.innerHTML=`<div class="consequence-msg"><h3>💥 HACKEADO!</h3><p>${msg}</p>${headHtml}</div>`;
+  document.body.appendChild(overlay);
+  spawnBurst();
+  setTimeout(()=>{overlay.remove();if(!checkGameOver())nextEvent();},2800);
+}
+
+function checkGameOver(){
+  if(state.priv<=0||state.seg<=0||state.din<=0||state.rep<=0){state.gameOver=true;showGameOver();return true;}
+  return false;
+}
+
+function showGameOver(){
+  clearInterval(timerInterval);
+  const reasons={priv:'Privacidade zerada! Seus dados estão em 47 grupos do Telegram.',seg:'Todos os seguidores te cancelaram.',din:'Hackers esgotaram sua conta completamente.',rep:'Você virou meme nacional involuntário.'};
+  let reason='Sua conta foi comprometida.';
+  if(state.priv<=0)reason=reasons.priv;else if(state.seg<=0)reason=reasons.seg;else if(state.din<=0)reason=reasons.din;else if(state.rep<=0)reason=reasons.rep;
+  document.getElementById('go-reason').textContent=reason;
+  document.getElementById('go-score').textContent=state.score;
+  document.getElementById('go-rounds').textContent=state.round;
+  document.getElementById('go-seg').textContent=state.seg+'%';
+  document.getElementById('go-exposed').textContent=state.priv<30?'🔓 CRÍTICA':state.priv<60?'⚠️ ALTA':'🔒 Média';
+  const senhas=['123456','senha123','abc123','qwerty','iloveyou'];
+  const h=['Seu CPF encontrado em '+Math.floor(Math.random()*40+5)+' sites de vazamento.','Hackers venderam seus dados por R$ '+Math.floor(Math.random()*50+5)+'.','Sua senha era: "'+senhas[Math.floor(Math.random()*senhas.length)]+'"'];
+  document.getElementById('go-headlines').innerHTML=h.map(x=>`<div class="headline">${x}</div>`).join('');
+  showScreen('scr-gameover');
+}
+
+function showWin(){
+  clearInterval(timerInterval);
+  document.getElementById('win-score').textContent=state.score;
+  document.getElementById('win-priv').textContent=state.priv+'%';
+  showScreen('scr-win');
+}
+
+function updateBars(){
+  ['priv','seg','din','rep'].forEach(k=>{
+    const b=document.getElementById('bar-'+k),v=document.getElementById('val-'+k);
+    if(b)b.style.width=state[k]+'%';if(v)v.textContent=state[k];
+  });
+  document.getElementById('hk-score').textContent='SCORE: '+state.score;
+}
+
+function showToast(msg,type){
+  const area=document.getElementById('hk-toast-area');
+  const t=document.createElement('div');
+  t.className='toast'+(type==='good'?' good':'');
+  t.textContent=msg;area.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+
+function spawnBurst(){
+  const emojis=['💀','🔓','😱','🚨','💸','😭','❌'];
+  for(let i=0;i<6;i++){
+    const el=document.createElement('div');
+    el.className='notif-burst';
+    el.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    el.style.left=Math.random()*80+10+'%';el.style.top=Math.random()*60+20+'%';
+    el.style.animationDelay=i*0.1+'s';
+    document.body.appendChild(el);setTimeout(()=>el.remove(),1200);
+  }
+}
+
+const starsEl=document.getElementById('hk-stars');
+for(let i=0;i<80;i++){
+  const s=document.createElement('div');s.className='star';
+  s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';
+  s.style.animationDelay=Math.random()*3+'s';s.style.width=s.style.height=(Math.random()*2+1)+'px';
+  starsEl.appendChild(s);
+}
+</script>
+</body>
+</html>
